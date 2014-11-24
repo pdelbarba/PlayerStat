@@ -6,8 +6,14 @@ EECS 341 Databases final project
 Prerequisites
 -------------
 
+ - Python3
  - (Tk GUI Toolkit)[http://www.tkdocs.com/tutorial/install.html]
  - (Sqlite3)[http://www.sqlite.org/docs.html]
+
+Resources
+---------
+
+ - http://zetcode.com/db/sqlite/datamanipulation/
 
 Usage
 -----
