@@ -7,8 +7,8 @@ Prerequisites
 -------------
 
  - Python3
- - (Tk GUI Toolkit)[http://www.tkdocs.com/tutorial/install.html]
- - (Sqlite3)[http://www.sqlite.org/docs.html]
+ - [Tk GUI Toolkit](http://www.tkdocs.com/tutorial/install.html)
+ - [Sqlite3](http://www.sqlite.org/docs.html)
 
 Resources
 ---------
