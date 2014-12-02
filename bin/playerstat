@@ -6,13 +6,13 @@ import tkinter as tk
 import sqlite3 as sql
 import sys
 
-def Pressed():
-    Lookup()
+def pressed():
+    lookup()
     entry = pEntry.get()
     print(entry)
     #tree.insert(, "end", entry, text=entry, values=("3A","3B"))
 
-def Lookup():
+def lookup():
     print('looking up database')
     con = None
 
@@ -20,12 +20,12 @@ def Lookup():
         con = sql.connect('proj.db')
         
         cur = con.cursor()
-        cur.execute("SELECT * FROM Player")
+        cur.execute("SELECT * FROM player NATURAL JOIN gameStats")
 
         rows = cur.fetchall()
 
         for row in rows:
-            tree.insert('', 0, text = row, values = ('1A', '1b'))
+            tree.insert('', 0, values = row[1:22])
         
     except sql.Error as e:
         
@@ -37,6 +37,17 @@ def Lookup():
         if con:
             con.close()
 
+def sort_by_column(tree, col, reverse):
+    l = [(tree.set(k, col), k) for k in tree.get_children('')]
+    l.sort(reverse=reverse)
+
+    # rearrange items in sorted positions
+    for index, (val, k) in enumerate(l):
+        tree.move(k, '', index)
+
+    # reverse sort
+    tree.heading(col, command=lambda _col=col: sort_by_column(tree, _col, not reverse))
+
 
 top = tk.Tk()
 
@@ -45,7 +56,7 @@ psearchFrame.pack(side = tk.TOP)
 lowerFrame = tk.Frame(top)
 lowerFrame.pack(side = tk.BOTTOM)
 
-pButton = tk.Button(psearchFrame, text = 'Search', command = Pressed)
+pButton = tk.Button(psearchFrame, text = 'Search', command = pressed)
 pButton.pack(side = tk.LEFT, pady = 20, padx = 20)
 
 pLabel = tk.Label(psearchFrame, text="Player")
@@ -53,13 +64,18 @@ pLabel.pack( side = tk.LEFT)
 pEntry = tk.Entry(psearchFrame, bd =5)
 pEntry.pack(side = tk.RIGHT)
 
-tree = ttk.Treeview(top)
+columns = ('Name', 'game', 'pa', 'atBats', 'runs', 'hits', 'b2', 'b3', 'hr', 'rbi', 'sb', 'cs', 'bb', 'so', 'p_innings', 'p_hits', 'p_runs', 'p_er', 'p_hr', 'p_bb', 'p_so')
 
-tree['columns'] = ("one", "two")
-tree.column('one', width = 100)
-tree.column('two', width = 100)
-tree.heading('one', text = 'column A')
-tree.heading('two', text = 'column B')
+tree = ttk.Treeview(top, columns=columns, show='headings')
+
+for col in columns:
+    tree.heading(col, text=col, command=lambda _col=col: sort_by_column(tree, _col, False))
+    tree.column(col, width = 30)
+#tree['columns'] = ("one", "two")
+#tree.column('one', width = 100)
+#tree.column('two', width = 100)
+#tree.heading('one', text = 'column A')
+#tree.heading('two', text = 'column B')
 
 #tree.insert('', 0, text = 'Line 1', values = ('1A', '1b'))
 
