@@ -20,12 +20,18 @@ def lookup():
         con = sql.connect('proj.db')
         
         cur = con.cursor()
-        cur.execute("SELECT * FROM player NATURAL JOIN gameStats")
 
+        cur.execute("SELECT * FROM player")
+        players = cur.fetchall()
+        cur.execute("SELECT * FROM player NATURAL JOIN gameStats")
         rows = cur.fetchall()
 
+        for row in players:
+            tree.insert('', 0, iid = row[0], values = row[1:2])
+
+
         for row in rows:
-            tree.insert('', 0, values = row[1:22])
+            tree.insert(row[0], 1, values = ("",) + row[2:22])
         
     except sql.Error as e:
         
@@ -70,7 +76,10 @@ tree = ttk.Treeview(top, columns=columns, show='headings')
 
 for col in columns:
     tree.heading(col, text=col, command=lambda _col=col: sort_by_column(tree, _col, False))
-    tree.column(col, width = 30)
+    if(col == 'Name'):
+        tree.column(col, width = 80)
+    else:
+        tree.column(col, width = 30)
 #tree['columns'] = ("one", "two")
 #tree.column('one', width = 100)
 #tree.column('two', width = 100)
