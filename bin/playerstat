@@ -7,12 +7,15 @@ import sqlite3 as sql
 import sys
 
 def pressed():
-    lookup()
     entry = pEntry.get()
-    print(entry)
-    #tree.insert(, "end", entry, text=entry, values=("3A","3B"))
 
-def lookup():
+    for i in tree.get_children():
+        tree.delete(i)
+
+    lookup(entry)
+    print(entry)
+
+def lookup(entry):
     print('looking up database')
     con = None
 
@@ -21,9 +24,9 @@ def lookup():
         
         cur = con.cursor()
 
-        cur.execute("SELECT * FROM player")
+        cur.execute("SELECT * FROM player WHERE playerName LIKE \'" + entry + "\'")
         players = cur.fetchall()
-        cur.execute("SELECT * FROM player NATURAL JOIN gameStats")
+        cur.execute("SELECT * FROM player NATURAL JOIN gameStats WHERE playerName LIKE \'" + entry + "\'")
         rows = cur.fetchall()
 
         for row in players:
@@ -80,18 +83,6 @@ for col in columns:
         tree.column(col, width = 80)
     else:
         tree.column(col, width = 30)
-#tree['columns'] = ("one", "two")
-#tree.column('one', width = 100)
-#tree.column('two', width = 100)
-#tree.heading('one', text = 'column A')
-#tree.heading('two', text = 'column B')
-
-#tree.insert('', 0, text = 'Line 1', values = ('1A', '1b'))
-
-#id2 = tree.insert('', 1, 'dir2', text = 'Dir 2')
-#tree.insert(id2, "end", "dir 2", text="sub dir 2", values=("2A","2B"))
-
-#tree.insert(id2, "end", "dir 3", text="sub dir 3", values=("3A","3B"))
 
 tree.pack()
 
