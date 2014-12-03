@@ -6,24 +6,26 @@ import tkinter as tk
 import sqlite3 as sql
 import sys
 
+# search button push event
 def pressed():
     entry = pEntry.get()
 
+    # delete old entries to prevent merge/id collisions
     for i in tree.get_children():
         tree.delete(i)
 
     lookup(entry)
-    print(entry)
 
+# defines database intecation behavior
 def lookup(entry):
-    print('looking up database')
     con = None
 
     try:
+        # setup connection
         con = sql.connect('proj.db')
-        
         cur = con.cursor()
 
+        # execute SQL queries against database
         cur.execute("SELECT * FROM player WHERE playerName LIKE \'" + entry + "\'")
         players = cur.fetchall()
         cur.execute("SELECT * FROM player NATURAL JOIN gameStats WHERE playerName LIKE \'" + entry + "\'")
@@ -35,7 +37,8 @@ def lookup(entry):
 
         for row in rows:
             tree.insert(row[0], 1, values = ("",) + row[2:22])
-        
+    
+    # handle SQL specific errors
     except sql.Error as e:
         
         print("Error %s:" % e.args[0])
@@ -57,26 +60,32 @@ def sort_by_column(tree, col, reverse):
     # reverse sort
     tree.heading(col, command=lambda _col=col: sort_by_column(tree, _col, not reverse))
 
-
+# initialize TK
 top = tk.Tk()
 
+# setup frames
 psearchFrame = tk.Frame(top)
 psearchFrame.pack(side = tk.TOP)
 lowerFrame = tk.Frame(top)
 lowerFrame.pack(side = tk.BOTTOM)
 
+# setup search button
 pButton = tk.Button(psearchFrame, text = 'Search', command = pressed)
 pButton.pack(side = tk.LEFT, pady = 20, padx = 20)
 
+# setup label and search box
 pLabel = tk.Label(psearchFrame, text="Player")
 pLabel.pack( side = tk.LEFT)
 pEntry = tk.Entry(psearchFrame, bd =5)
 pEntry.pack(side = tk.RIGHT)
 
+# define displayed columns
 columns = ('Name', 'game', 'pa', 'atBats', 'runs', 'hits', 'b2', 'b3', 'hr', 'rbi', 'sb', 'cs', 'bb', 'so', 'p_innings', 'p_hits', 'p_runs', 'p_er', 'p_hr', 'p_bb', 'p_so')
 
+# initialize tree
 tree = ttk.Treeview(top, columns=columns, show='headings')
 
+# create columns in tree view with names from 'columns'
 for col in columns:
     tree.heading(col, text=col, command=lambda _col=col: sort_by_column(tree, _col, False))
     if(col == 'Name'):
@@ -84,6 +93,7 @@ for col in columns:
     else:
         tree.column(col, width = 30)
 
+# push tree to window
 tree.pack()
-
+# main input/render loop, don't put anything after this since it will never run
 top.mainloop()
