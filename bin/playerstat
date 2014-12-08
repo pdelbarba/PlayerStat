@@ -22,22 +22,31 @@ def lookup(entry):
 
     try:
         # setup connection
-        con = sql.connect('proj.db')
+        con = sql.connect('../proj.db')
         cur = con.cursor()
-
+        print(searchTeams)
         # execute SQL queries against database
-        cur.execute("SELECT * FROM player WHERE playerName LIKE \'" + entry + "\'")
-        players = cur.fetchall()
-        cur.execute("SELECT * FROM player NATURAL JOIN gameStats WHERE playerName LIKE \'" + entry + "\'")
-        rows = cur.fetchall()
+        if (searchTeams.get() == 0):
+            cur.execute("SELECT * FROM Player WHERE playerName LIKE \'" + entry + "\'")
+            players = cur.fetchall()
+            cur.execute("SELECT * FROM Player NATURAL JOIN GameStats WHERE playerName LIKE \'" + entry + "\'")
+            rows = cur.fetchall()
 
-        for row in players:
-            tree.insert('', 0, iid = row[0], values = row[1:2])
+            for row in players:
+                tree.insert('', 0, iid = row[0], values = row[1:2])
 
 
-        for row in rows:
-            tree.insert(row[0], 1, values = ("",) + row[2:22])
-    
+            for row in rows:
+                tree.insert(row[0], 1, values = ("",) + row[2:22])
+
+        else: #searching for teams
+
+            cur.execute("SELECT playerName FROM Player P, Playsfor F, Team T WHERE P.playerID = F.playerID AND F.teamID = T.teamID AND T.teamName LIKE \'" + entry + "\'")
+            players = cur.fetchall()
+            print(players)
+            for row in players:
+                tree.insert('', 0, iid = row[0], values = row[0:2])
+
     # handle SQL specific errors
     except sql.Error as e:
         
@@ -60,8 +69,11 @@ def sort_by_column(tree, col, reverse):
     # reverse sort
     tree.heading(col, command=lambda _col=col: sort_by_column(tree, _col, not reverse))
 
+
 # initialize TK
 top = tk.Tk()
+
+searchTeams = tk.IntVar()
 
 # setup frames
 psearchFrame = tk.Frame(top)
@@ -73,8 +85,11 @@ lowerFrame.pack(side = tk.BOTTOM)
 pButton = tk.Button(psearchFrame, text = 'Search', command = pressed)
 pButton.pack(side = tk.LEFT, pady = 20, padx = 20)
 
+cb = tk.Checkbutton(psearchFrame, text="Search Teams", variable=searchTeams)
+cb.pack(side=tk.RIGHT)
+
 # setup label and search box
-pLabel = tk.Label(psearchFrame, text="Player")
+pLabel = tk.Label(psearchFrame, text="Query:")
 pLabel.pack( side = tk.LEFT)
 pEntry = tk.Entry(psearchFrame, bd =5)
 pEntry.pack(side = tk.RIGHT)
