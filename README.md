@@ -13,7 +13,7 @@ Prerequisites
 Resources
 ---------
 
- - http://zetcode.com/db/sqlite/datamanipulation/
+ - [Using Sqlite3 with Python3](http://zetcode.com/db/sqlite/datamanipulation/)
 
 Usage
 -----
@@ -24,7 +24,7 @@ virtualenv env
 source env/bin/activate
 pip install -r requirements.txt
 ```
-(More info)[http://docs.python-guide.org/en/latest/dev/virtualenvs/]
+[More info](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
 
 ####Running
 
