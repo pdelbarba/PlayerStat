@@ -5,6 +5,7 @@ from tkinter import ttk
 import tkinter as tk
 import sqlite3 as sql
 import sys
+import threading
 
 # search button push event
 def pressed():
@@ -24,7 +25,6 @@ def lookup(entry):
         # setup connection
         con = sql.connect('../proj.db')
         cur = con.cursor()
-        print(searchTeams)
         # execute SQL queries against database
         if (searchTeams.get() == 0):
             cur.execute("SELECT * FROM Player WHERE playerName LIKE \'" + entry + "\'")
@@ -43,7 +43,7 @@ def lookup(entry):
 
             cur.execute("SELECT playerName FROM Player P, Playsfor F, Team T WHERE P.playerID = F.playerID AND F.teamID = T.teamID AND T.teamName LIKE \'" + entry + "\'")
             players = cur.fetchall()
-            print(players)
+
             for row in players:
                 tree.insert('', 0, iid = row[0], values = row[0:2])
 
@@ -69,6 +69,38 @@ def sort_by_column(tree, col, reverse):
     # reverse sort
     tree.heading(col, command=lambda _col=col: sort_by_column(tree, _col, not reverse))
 
+
+def searchWindow():
+    # main input/render loop for search window, don't put anything after this since it will never run
+    top.mainloop()
+
+def insertData():
+    con = None
+    query = ""
+    try:
+        # setup connection
+        con = sql.connect('../proj.db')
+        cur = con.cursor()
+        # execute SQL queries in database
+
+        for entry in entries:
+            val = entry.get()
+            if val == "":
+                val = "0"
+            query += val + ", "
+            entry.delete(0, tk.END)
+        cur.execute("INSERT INTO GameStats VALUES (" + query[:-2] + ");")
+
+    # handle SQL specific errors
+    except sql.Error as e:
+        
+        print("Error %s:" % e.args[0])
+        sys.exit(1)
+        
+    finally:
+        
+        if con:
+            con.close()
 
 # initialize TK
 top = tk.Tk()
@@ -110,5 +142,62 @@ for col in columns:
 
 # push tree to window
 tree.pack()
-# main input/render loop, don't put anything after this since it will never run
-top.mainloop()
+
+
+iw = tk.Tk()
+
+tk.Label(iw, text="gameID"     ).grid(row=0,     column=0)
+tk.Label(iw, text="playerID"   ).grid(row=1,     column=0)
+tk.Label(iw, text="pa"         ).grid(row=2,     column=0)
+tk.Label(iw, text="atBats"     ).grid(row=3,     column=0)
+tk.Label(iw, text="runs"       ).grid(row=4,     column=0)
+tk.Label(iw, text="hits"       ).grid(row=5,     column=0)
+tk.Label(iw, text="b2"         ).grid(row=6,     column=0)
+tk.Label(iw, text="b3"         ).grid(row=7,     column=0)
+tk.Label(iw, text="hr"         ).grid(row=8,     column=0)
+tk.Label(iw, text="rbi"        ).grid(row=9,     column=0)
+tk.Label(iw, text="sb"         ).grid(row=10,    column=0)
+tk.Label(iw, text="cs"         ).grid(row=0,     column=2)
+tk.Label(iw, text="bb"         ).grid(row=1,     column=2)
+tk.Label(iw, text="so"         ).grid(row=2,     column=2)
+tk.Label(iw, text="p_innings"  ).grid(row=3,     column=2)
+tk.Label(iw, text="p_hits"     ).grid(row=4,     column=2)
+tk.Label(iw, text="p_runs"     ).grid(row=5,     column=2)
+tk.Label(iw, text="p_er"       ).grid(row=6,     column=2)
+tk.Label(iw, text="p_hr"       ).grid(row=7,     column=2)
+tk.Label(iw, text="p_bb"       ).grid(row=8,     column=2)
+tk.Label(iw, text="p_so"       ).grid(row=9,     column=2)
+
+entries = []
+for i in range(0,21):
+    entries.append(tk.Entry(iw))
+
+entries[0].grid(row=0,      column=1)
+entries[1].grid(row=1,      column=1)
+entries[2].grid(row=2,      column=1)
+entries[3].grid(row=3,      column=1)
+entries[4].grid(row=4,      column=1)
+entries[5].grid(row=5,      column=1)
+entries[6].grid(row=6,      column=1)
+entries[7].grid(row=7,      column=1)
+entries[8].grid(row=8,      column=1)
+entries[9].grid(row=9,      column=1)
+entries[10].grid(row=10,     column=1)
+entries[11].grid(row=0,      column=3)
+entries[12].grid(row=1,      column=3)
+entries[13].grid(row=2,      column=3)
+entries[14].grid(row=3,      column=3)
+entries[15].grid(row=4,      column=3)
+entries[16].grid(row=5,      column=3)
+entries[17].grid(row=6,      column=3)
+entries[18].grid(row=7,      column=3)
+entries[19].grid(row=8,      column=3)
+entries[20].grid(row=9,      column=3)
+
+errorString = tk.StringVar()
+
+tk.Button(iw, text = 'Insert', command = insertData).grid(row=11, column=0)
+
+t1 = threading.Thread(target=searchWindow)
+# main input/render loop for insertion window, don't put anything after this since it will never run
+iw.mainloop()
