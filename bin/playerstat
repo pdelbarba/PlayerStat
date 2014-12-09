@@ -90,6 +90,7 @@ def insertData():
             query += val + ", "
             entry.delete(0, tk.END)
         cur.execute("INSERT INTO GameStats VALUES (" + query[:-2] + ");")
+        con.commit()
 
     # handle SQL specific errors
     except sql.Error as e:
@@ -99,7 +100,6 @@ def insertData():
         
     finally:
         
-        con.commit()
         if con:
             con.close()
 
