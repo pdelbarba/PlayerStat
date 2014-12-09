@@ -99,6 +99,7 @@ def insertData():
         
     finally:
         
+        con.commit()
         if con:
             con.close()
 
